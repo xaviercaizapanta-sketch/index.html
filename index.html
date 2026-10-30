@@ -1,0 +1,910 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyFlow | Organizador de tareas</title>
+
+    <style>
+        /* ===== ESTILOS GENERALES ===== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primario: #4f46e5;
+            --fondo: #f4f6fb;
+            --texto: #20243a;
+            --secundario: #687087;
+            --borde: #e3e7f0;
+            --blanco: #ffffff;
+            --verde: #16865c;
+            --rojo: #dc3545;
+            --naranja: #d97706;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--fondo);
+            color: var(--texto);
+            line-height: 1.5;
+        }
+
+        button, input, select {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .contenedor {
+            width: min(1100px, 92%);
+            margin: 0 auto;
+        }
+
+        /* ===== ENCABEZADO ===== */
+        header {
+            background: var(--blanco);
+            border-bottom: 1px solid var(--borde);
+            padding: 22px 0;
+        }
+
+        .encabezado {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icono {
+            background: var(--primario);
+            color: white;
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 24px;
+        }
+
+        h1 {
+            font-size: 25px;
+            letter-spacing: -1px;
+        }
+
+        .subtitulo {
+            color: var(--secundario);
+            font-size: 13px;
+        }
+
+        .etiqueta {
+            background: #eef2ff;
+            color: var(--primario);
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* ===== CONTENIDO PRINCIPAL ===== */
+        main {
+            padding: 30px 0 45px;
+        }
+
+        .bienvenida {
+            margin-bottom: 24px;
+        }
+
+        .bienvenida h2 {
+            font-size: 26px;
+            margin-bottom: 5px;
+        }
+
+        .bienvenida p {
+            color: var(--secundario);
+            font-size: 14px;
+        }
+
+        /* ===== TARJETAS DE RESUMEN ===== */
+        .resumen {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .tarjeta {
+            background: var(--blanco);
+            border: 1px solid var(--borde);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .tarjeta-titulo {
+            color: var(--secundario);
+            font-size: 13px;
+        }
+
+        .tarjeta-numero {
+            font-size: 30px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        .tarjeta-detalle {
+            color: var(--secundario);
+            font-size: 12px;
+        }
+
+        /* ===== BARRA DE PROGRESO ===== */
+        .barra-fondo {
+            width: 100%;
+            height: 8px;
+            background: #e9eaf3;
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 12px 0 8px;
+        }
+
+        .barra-progreso {
+            height: 100%;
+            width: 0%;
+            background: var(--primario);
+            border-radius: 20px;
+            transition: width 0.3s ease;
+        }
+
+        /* ===== DISTRIBUCIÓN DEL FORMULARIO Y TAREAS ===== */
+        .contenido {
+            display: grid;
+            grid-template-columns: 320px minmax(0, 1fr);
+            gap: 22px;
+            align-items: start;
+        }
+
+        .panel {
+            background: var(--blanco);
+            border: 1px solid var(--borde);
+            border-radius: 15px;
+            padding: 22px;
+            min-width: 0;
+        }
+
+        .panel h3 {
+            font-size: 17px;
+            margin-bottom: 5px;
+        }
+
+        .descripcion {
+            color: var(--secundario);
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+
+        /* ===== FORMULARIO ===== */
+        .campo {
+            margin-bottom: 16px;
+        }
+
+        .campo label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .campo input,
+        .campo select {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #d8ddeb;
+            border-radius: 9px;
+            background: white;
+            color: var(--texto);
+            outline: none;
+        }
+
+        .campo input:focus,
+        .campo select:focus {
+            border-color: var(--primario);
+            box-shadow: 0 0 0 3px #4f46e51a;
+        }
+
+        .boton {
+            border: none;
+            border-radius: 9px;
+            padding: 11px 15px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .boton-principal {
+            background: var(--primario);
+            color: white;
+            width: 100%;
+        }
+
+        .boton-principal:hover {
+            background: #3730a3;
+        }
+
+        /* ===== LISTA DE TAREAS ===== */
+        .cabecera-tareas {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .cabecera-tareas h3 {
+            margin: 0;
+        }
+
+        .filtro {
+            max-width: 155px;
+            padding: 8px;
+            border: 1px solid var(--borde);
+            border-radius: 8px;
+            background: white;
+            color: var(--texto);
+        }
+
+        .lista {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .tarea {
+            border: 1px solid var(--borde);
+            border-left: 4px solid #cbd1e0;
+            border-radius: 11px;
+            padding: 15px;
+            background: white;
+        }
+
+        /* Se resaltan las tareas próximas a vencer */
+        .tarea.proxima {
+            border-left-color: var(--naranja);
+            background: #fffbf3;
+        }
+
+        /* Las tareas vencidas tienen una alerta distinta */
+        .tarea.vencida {
+            border-left-color: var(--rojo);
+            background: #fff7f7;
+        }
+
+        .tarea.completada {
+            border-left-color: var(--verde);
+            background: #f6fcf8;
+        }
+
+        .tarea-superior {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .tarea-titulo {
+            font-size: 15px;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+        }
+
+        .tarea.completada .tarea-titulo {
+            text-decoration: line-through;
+            color: var(--secundario);
+        }
+
+        .insignias {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .insignia {
+            display: inline-block;
+            border-radius: 20px;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .prioridad-alta {
+            color: #b42332;
+            background: #feecef;
+        }
+
+        .prioridad-media {
+            color: #9a5b00;
+            background: #fff0d5;
+        }
+
+        .prioridad-baja {
+            color: #276749;
+            background: #dcfce7;
+        }
+
+        .estado-alerta {
+            color: #a65300;
+            background: #ffedc2;
+        }
+
+        .estado-vencida {
+            color: #b42332;
+            background: #feecef;
+        }
+
+        .estado-lista {
+            color: #14764f;
+            background: #dcfce7;
+        }
+
+        .datos-tarea {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 16px;
+            color: var(--secundario);
+            font-size: 12px;
+        }
+
+        .acciones {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .boton-completar {
+            background: #e8f7ef;
+            color: #16734e;
+            padding: 8px 10px;
+            font-size: 12px;
+        }
+
+        .boton-eliminar {
+            background: #fff0f0;
+            color: #b42332;
+            padding: 8px 10px;
+            font-size: 12px;
+        }
+
+        .boton-completar:hover,
+        .boton-eliminar:hover {
+            filter: brightness(0.96);
+        }
+
+        .vacio {
+            text-align: center;
+            padding: 35px 15px;
+            color: var(--secundario);
+            font-size: 14px;
+        }
+
+        .vacio-icono {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--secundario);
+            font-size: 12px;
+        }
+
+        /* ===== ADAPTACIÓN PARA CELULARES ===== */
+        @media (max-width: 760px) {
+            .contenido {
+                grid-template-columns: 1fr;
+            }
+
+            .resumen {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .tarjeta {
+                padding: 15px;
+            }
+
+            .tarjeta-numero {
+                font-size: 25px;
+            }
+
+            .bienvenida h2 {
+                font-size: 22px;
+            }
+
+            .etiqueta {
+                display: none;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .panel {
+                padding: 15px;
+            }
+
+            .cabecera-tareas {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .filtro {
+                max-width: 100%;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Encabezado de la aplicación -->
+    <header>
+        <div class="contenedor encabezado">
+            <div class="logo">
+                <div class="logo-icono" aria-hidden="true">✓</div>
+                <div>
+                    <h1>StudyFlow</h1>
+                    <p class="subtitulo">Organiza. Colabora. Cumple.</p>
+                </div>
+            </div>
+            <span class="etiqueta">ORGANIZACIÓN UNIVERSITARIA</span>
+        </div>
+    </header>
+
+    <main class="contenedor">
+        <!-- Presentación -->
+        <section class="bienvenida">
+            <h2>Panel de trabajo</h2>
+            <p>Organiza las actividades de tu grupo y cumple cada entrega a tiempo.</p>
+        </section>
+
+        <!-- Indicadores generales -->
+        <section class="resumen" aria-label="Resumen del progreso">
+            <article class="tarjeta">
+                <p class="tarjeta-titulo">Total de tareas</p>
+                <p class="tarjeta-numero" id="totalTareas">0</p>
+                <p class="tarjeta-detalle">Actividades registradas</p>
+            </article>
+
+            <article class="tarjeta">
+                <p class="tarjeta-titulo">Tareas pendientes</p>
+                <p class="tarjeta-numero" id="pendientes">0</p>
+                <p class="tarjeta-detalle">Por completar</p>
+            </article>
+
+            <article class="tarjeta">
+                <p class="tarjeta-titulo">Progreso del grupo</p>
+                <p class="tarjeta-numero" id="porcentaje">0%</p>
+                <div class="barra-fondo"
+                     role="progressbar"
+                     id="barraAccesible"
+                     aria-label="Progreso del grupo"
+                     aria-valuemin="0"
+                     aria-valuemax="100"
+                     aria-valuenow="0">
+                    <div class="barra-progreso" id="barraProgreso"></div>
+                </div>
+                <p class="tarjeta-detalle" id="detalleProgreso">
+                    0 de 0 tareas completadas
+                </p>
+            </article>
+        </section>
+
+        <div class="contenido">
+            <!-- Formulario para registrar tareas -->
+            <section class="panel">
+                <h3>+ Nueva tarea</h3>
+                <p class="descripcion">Registra una actividad del grupo.</p>
+
+                <form id="formularioTarea">
+                    <div class="campo">
+                        <label for="nombre">Nombre de la tarea</label>
+                        <input
+                            type="text"
+                            id="nombre"
+                            maxlength="120"
+                            placeholder="Ej. Informe de laboratorio"
+                            required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="responsable">Responsable</label>
+                        <input
+                            type="text"
+                            id="responsable"
+                            maxlength="80"
+                            placeholder="Ej. Carlos"
+                            required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="fechaLimite">Fecha y hora límite</label>
+                        <input type="datetime-local"
+                               id="fechaLimite"
+                               required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="prioridad">Prioridad</label>
+                        <select id="prioridad" required>
+                            <option value="Alta">Alta</option>
+                            <option value="Media" selected>Media</option>
+                            <option value="Baja">Baja</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="boton boton-principal">
+                        Agregar tarea
+                    </button>
+                </form>
+            </section>
+
+            <!-- Listado de tareas registradas -->
+            <section class="panel">
+                <div class="cabecera-tareas">
+                    <div>
+                        <h3>Lista de tareas</h3>
+                        <p class="descripcion" style="margin: 4px 0 0;">
+                            Ordenadas por fecha límite.
+                        </p>
+                    </div>
+
+                    <select id="filtro" class="filtro"
+                            aria-label="Filtrar tareas">
+                        <option value="todas">Todas las tareas</option>
+                        <option value="pendientes">Pendientes</option>
+                        <option value="completadas">Completadas</option>
+                    </select>
+                </div>
+
+                <div id="listaTareas" class="lista" aria-live="polite">
+                    <!-- JavaScript muestra aquí las tareas -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        StudyFlow · Prototipo académico de organización colaborativa
+    </footer>
+
+    <script>
+        // ===== DATOS EN MEMORIA =====
+        // Las tareas se conservan mientras la página esté abierta.
+        // Al recargar o cerrar la página, los datos se reinician.
+        let tareas = [];
+        let siguienteId = 1;
+
+        // Referencias a los elementos HTML que vamos a actualizar.
+        const formulario = document.getElementById("formularioTarea");
+        const listaTareas = document.getElementById("listaTareas");
+        const filtro = document.getElementById("filtro");
+
+        // Devuelve la fecha actual en formato compatible con datetime-local.
+        // Se utiliza la hora local del equipo, no la hora UTC.
+        function fechaLocalParaInput(fecha) {
+            const ajustar = fecha.getTimezoneOffset() * 60000;
+            return new Date(fecha.getTime() - ajustar)
+                .toISOString()
+                .slice(0, 16);
+        }
+
+        // Evita seleccionar fechas anteriores al momento actual.
+        function actualizarFechaMinima() {
+            document.getElementById("fechaLimite").min =
+                fechaLocalParaInput(new Date());
+        }
+
+        // ===== REGISTRO DE TAREAS =====
+        formulario.addEventListener("submit", function(evento) {
+            evento.preventDefault();
+
+            const nombre = document.getElementById("nombre")
+                .value.trim();
+            const responsable = document.getElementById("responsable")
+                .value.trim();
+            const fechaTexto = document.getElementById("fechaLimite")
+                .value;
+            const prioridad = document.getElementById("prioridad").value;
+
+            const fecha = new Date(fechaTexto);
+
+            // Validamos los campos para evitar registros incorrectos.
+            if (!nombre || !responsable || !fechaTexto ||
+                Number.isNaN(fecha.getTime())) {
+                alert("Completa todos los campos correctamente.");
+                return;
+            }
+
+            if (fecha.getTime() < Date.now()) {
+                alert("La fecha límite debe ser futura.");
+                return;
+            }
+
+            // Cada tarea tiene un identificador único y un estado.
+            const nuevaTarea = {
+                id: siguienteId++,
+                nombre: nombre,
+                responsable: responsable,
+                fechaLimite: fecha.toISOString(),
+                prioridad: prioridad,
+                completada: false
+            };
+
+            tareas.push(nuevaTarea);
+
+            // Restablecemos el formulario y actualizamos la interfaz.
+            formulario.reset();
+            document.getElementById("prioridad").value = "Media";
+            actualizarFechaMinima();
+            renderizar();
+        });
+
+        // ===== CÁLCULO DEL TIEMPO RESTANTE =====
+        function obtenerEstadoTiempo(tarea) {
+            const diferencia =
+                new Date(tarea.fechaLimite).getTime() - Date.now();
+
+            const horas = diferencia / (1000 * 60 * 60);
+
+            // Primero se comprueba si la tarea ya fue completada.
+            if (tarea.completada) {
+                return {
+                    clase: "completada",
+                    texto: "Completada",
+                    tipo: "lista"
+                };
+            }
+
+            // Una tarea pasada de fecha se considera vencida.
+            if (diferencia <= 0) {
+                return {
+                    clase: "vencida",
+                    texto: "Vencida",
+                    tipo: "vencida"
+                };
+            }
+
+            // Se resaltan las tareas cuyo vencimiento está
+            // dentro de las próximas 48 horas.
+            if (horas < 48) {
+                return {
+                    clase: "proxima",
+                    texto: "Vence en menos de 48 h",
+                    tipo: "alerta"
+                };
+            }
+
+            return {
+                clase: "",
+                texto: "Pendiente",
+                tipo: ""
+            };
+        }
+
+        // Convierte una fecha ISO en una fecha legible en español.
+        function formatearFecha(fechaISO) {
+            return new Date(fechaISO).toLocaleString("es-EC", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit"
+            });
+        }
+
+        // Crea una etiqueta visual sin interpretar texto como HTML.
+        function crearInsignia(texto, clase) {
+            const insignia = document.createElement("span");
+            insignia.className = "insignia " + clase;
+            insignia.textContent = texto;
+            return insignia;
+        }
+
+        // ===== CREACIÓN VISUAL DE CADA TAREA =====
+        function crearElementoTarea(tarea) {
+            const estado = obtenerEstadoTiempo(tarea);
+            const articulo = document.createElement("article");
+
+            articulo.className = "tarea " + estado.clase;
+
+            // Nombre de la actividad.
+            const superior = document.createElement("div");
+            superior.className = "tarea-superior";
+
+            const titulo = document.createElement("div");
+            titulo.className = "tarea-titulo";
+            titulo.textContent = tarea.nombre;
+            superior.appendChild(titulo);
+
+            articulo.appendChild(superior);
+
+            // Etiquetas de prioridad y vencimiento.
+            const insignias = document.createElement("div");
+            insignias.className = "insignias";
+
+            insignias.appendChild(crearInsignia(
+                "Prioridad " + tarea.prioridad,
+                "prioridad-" + tarea.prioridad.toLowerCase()
+            ));
+
+            insignias.appendChild(crearInsignia(
+                estado.texto,
+                estado.tipo === "alerta" ? "estado-alerta" :
+                estado.tipo === "vencida" ? "estado-vencida" :
+                estado.tipo === "lista" ? "estado-lista" : ""
+            ));
+
+            articulo.appendChild(insignias);
+
+            // Responsable y fecha de entrega.
+            const datos = document.createElement("div");
+            datos.className = "datos-tarea";
+
+            const responsable = document.createElement("span");
+            responsable.textContent = "Responsable: " + tarea.responsable;
+
+            const fecha = document.createElement("span");
+            fecha.textContent = "Entrega: " +
+                formatearFecha(tarea.fechaLimite);
+
+            datos.appendChild(responsable);
+            datos.appendChild(fecha);
+            articulo.appendChild(datos);
+
+            // Botones para completar o eliminar una actividad.
+            const acciones = document.createElement("div");
+            acciones.className = "acciones";
+
+            const botonCompletar = document.createElement("button");
+            botonCompletar.type = "button";
+            botonCompletar.className = "boton boton-completar";
+            botonCompletar.textContent = tarea.completada
+                ? "Marcar pendiente"
+                : "✓ Completar";
+
+            botonCompletar.setAttribute(
+                "aria-label",
+                (tarea.completada ? "Marcar pendiente: " :
+                    "Completar: ") + tarea.nombre
+            );
+
+            botonCompletar.addEventListener("click", function() {
+                tarea.completada = !tarea.completada;
+                renderizar();
+            });
+
+            const botonEliminar = document.createElement("button");
+            botonEliminar.type = "button";
+            botonEliminar.className = "boton boton-eliminar";
+            botonEliminar.textContent = "Eliminar";
+            botonEliminar.setAttribute(
+                "aria-label", "Eliminar: " + tarea.nombre
+            );
+
+            botonEliminar.addEventListener("click", function() {
+                const confirmar = confirm(
+                    '¿Deseas eliminar la tarea "' + tarea.nombre + '"?'
+                );
+
+                if (confirmar) {
+                    tareas = tareas.filter(function(item) {
+                        return item.id !== tarea.id;
+                    });
+
+                    renderizar();
+                }
+            });
+
+            acciones.appendChild(botonCompletar);
+            acciones.appendChild(botonEliminar);
+            articulo.appendChild(acciones);
+
+            return articulo;
+        }
+
+        // ===== ACTUALIZACIÓN DE INDICADORES =====
+        function actualizarResumen() {
+            const total = tareas.length;
+            const completadas = tareas.filter(
+                tarea => tarea.completada
+            ).length;
+            const pendientes = total - completadas;
+
+            // Evitamos dividir entre cero cuando no hay tareas.
+            const porcentaje = total === 0
+                ? 0
+                : Math.round((completadas / total) * 100);
+
+            document.getElementById("totalTareas").textContent = total;
+            document.getElementById("pendientes").textContent = pendientes;
+            document.getElementById("porcentaje").textContent =
+                porcentaje + "%";
+
+            document.getElementById("barraProgreso").style.width =
+                porcentaje + "%";
+
+            document.getElementById("barraAccesible")
+                .setAttribute("aria-valuenow", porcentaje);
+
+            document.getElementById("detalleProgreso").textContent =
+                completadas + " de " + total + " tareas completadas";
+        }
+
+        // ===== MOSTRAR Y ORDENAR TAREAS =====
+        function renderizar() {
+            actualizarResumen();
+
+            // Aplicamos el filtro seleccionado.
+            let tareasVisibles = tareas.filter(function(tarea) {
+                if (filtro.value === "pendientes") {
+                    return !tarea.completada;
+                }
+
+                if (filtro.value === "completadas") {
+                    return tarea.completada;
+                }
+
+                return true;
+            });
+
+            // Ordenamos por fecha límite: primero la entrega más próxima.
+            tareasVisibles.sort(function(a, b) {
+                return new Date(a.fechaLimite) -
+                    new Date(b.fechaLimite);
+            });
+
+            // Limpiamos la lista antes de volver a dibujarla.
+            listaTareas.replaceChildren();
+
+            // Mensaje cuando no existen tareas para mostrar.
+            if (tareasVisibles.length === 0) {
+                const vacio = document.createElement("div");
+                vacio.className = "vacio";
+
+                const icono = document.createElement("div");
+                icono.className = "vacio-icono";
+                icono.textContent = "📚";
+
+                const mensaje = document.createElement("p");
+                mensaje.textContent = filtro.value === "completadas"
+                    ? "Todavía no hay tareas completadas."
+                    : filtro.value === "pendientes"
+                    ? "¡No tienes tareas pendientes!"
+                    : "Aún no hay tareas. Agrega la primera actividad.";
+
+                vacio.appendChild(icono);
+                vacio.appendChild(mensaje);
+                listaTareas.appendChild(vacio);
+                return;
+            }
+
+            // Dibujamos todas las tareas ordenadas.
+            tareasVisibles.forEach(function(tarea) {
+                listaTareas.appendChild(crearElementoTarea(tarea));
+            });
+        }
+
+        // Cuando cambia el filtro, se actualiza la lista.
+        filtro.addEventListener("change", renderizar);
+
+        // Iniciamos la aplicación.
+        actualizarFechaMinima();
+        renderizar();
+    </script>
+</body>
+</html>
